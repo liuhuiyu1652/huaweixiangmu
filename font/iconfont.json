@@ -1,0 +1,23 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1166722",
+      "name": "放大镜",
+      "font_class": "fangdajing",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "1638197",
+      "name": "购物车",
+      "font_class": "gouwuche",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    }
+  ]
+}

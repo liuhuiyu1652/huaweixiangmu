@@ -1,0 +1,32 @@
+window['siqmbfprdtab.js'] || (function(window, $, undefined) {
+    var i18n = window.locale.cart;
+    window['siqmbfprdtab.js'] = true;
+
+    function Prdtab($el) {
+        this.click = false;
+        this.bindEvent();
+    }
+
+    // 原型方法
+    Prdtab.prototype = {
+        constructor: Prdtab,
+        bindEvent: function() {
+            var objthis = this;
+            $('.tab-box .tab-title li').click(function() {
+                var ind = $(this).index();
+                $(this).addClass('act').siblings().removeClass('act');
+                $(this).parent().parent().find('.goods-item').hide();
+                $(this).parent().parent().find('.zq' + ind).show();
+            })
+        }
+    };
+
+    // 遍历页面组件
+    DC.defineModule('siqmbfprdtab', new Prdtab());
+})(window, jQuery);
+
+
+
+if ("DESIGN" == window.shopdcmode) {
+    utils.getScript("/cdn/modules-bf/siqm/prdtab/web/js/formcheck.js");
+}

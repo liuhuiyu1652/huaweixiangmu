@@ -1,0 +1,188 @@
+/**
+ * PC端：图模块
+ * 需求：图模块支持配置CID参数{"time":"2018.11.30 14:25:57","author":"Ben"}
+ */
+(function(window, $, undefined) {
+    window.addEventListener('pageshow', function(event) {
+        // 部分浏览器的后退操作会读取缓存，则强制刷新
+        if (event.persisted) {
+            location.reload();
+        }
+    });
+
+    function Picture($mod) {
+        var config = $mod.data('config');
+        var popupconfig = $mod.data('popupconfig');
+        var country = $mod.find('.anchor-picPopup').data('country');
+        var popupStyle = $mod.find('.anchor-picPopup').data('popuptype');
+        var content = '<div id=' + 'contentscroll' + '>' + $mod.find('#popup-content').html() + '</div>';
+        var cid = $mod.data('cid');
+        var currentTime  = utils.getCurrZoneDate();
+
+        // 招行图模块（登录页隐藏支付宝、QQ等第三方快登）
+        if (config && config.moduleType == 'cmb') {
+            $mod.on('click', 'a', function(event) {
+                utils.cookie.set('thirdLoginFlag', 0);
+            });
+        }
+
+        // 优先级低于URL参数中的cid参数
+        if (cid && !utils.getUrlParams('cid')) {
+            utils.cookie.set('cps_id', cid);
+        }
+
+        // 判断选用哪种形式的弹框，style-1普通弹框，否则活动弹框
+        if (popupStyle === 'style-1') {
+            $mod.find('.anchor-picPopup').on('click', function() {
+                new utils.box(content || '', {
+                    boxid: "picPopup",
+                    boxclass: "ol_box_4",
+                    title: HtmlUtil.htmlEncodeByRegExp(popupconfig.title),
+                    showButton: true,
+                    showCancel: false
+                }).open();
+                $('#picPopup .box-title').css('height', '27px');
+            });
+        } else {
+            $mod.find('.anchor-picPopup').on('click', function() {
+                new utils.box(content || '', {
+                    boxid: "style-popup",
+                    boxclass: "ol_box_4",
+                    title: HtmlUtil.htmlEncodeByRegExp(popupconfig.title),
+                    showButton: true,
+                    showCancel: false
+                }).open();
+                if (country === 'CN') {
+                    $('#style-popup').find('.box-header').addClass('cn')
+                }
+                $('#style-popup .box-title').css('height', '58px');
+                $("#style-popup .box-content").niceScroll("#contentscroll", { cursorcolor: "#FE9B4C", cursorwidth: "10px", cursoropacitymax: 1, boxzoom: true, autohidemode: false });
+            });
+        }
+            // 判断当前的图模块有没有含有替换时间的
+        var $picContentWrap = $mod.find($('.pic-content-wrap'));
+        var imgList = $picContentWrap.data('imglist') || [];
+        var flag = true;
+        imgList.forEach(function (item, index) {
+            if (item.replaceOnlineTime) {
+                flag = false;
+            }
+        })
+        if(flag == false){
+            getCurrentTime($mod);
+
+        }else{
+            renderDom(currentTime,$mod)
+        }
+    }
+
+    // 调用定义组件的函数
+    // $('.mod-pic').each(function() {
+    //     new Picture($(this));
+    // });
+    // 调用定义组件的函数
+    var initial = {
+        init: function (el) {
+            var $el = $(el);
+            $el.each(function () {
+                new Picture($(this));
+            });
+        }
+    };
+    DC.defineModule('pictures', initial);
+    initial.init('.mod-pic');
+    // 初始化懒加载
+    DC.defineModule('pictures', {
+        init: function (mod) {
+            utils.image.lazyLoad($(mod).find('img'));
+        }
+    });
+    function getCurrentTime($mod){
+        var currentTime  = utils.getCurrZoneDate();
+        utils.ajaxOpenAPI({
+            type: 'GET',
+            url: "/serverTime.json",
+            contentType: "application/json;charset=utf-8",
+            success: function (data) {
+                if(data && data.success && data.serverTime){
+                    currentTime = data.serverTime * 1000;
+                    renderDom(currentTime,$mod)
+                }else{
+                    renderDom(currentTime,$mod)
+                }
+            },
+            timeoutFunction: function(){
+                console.log('timeoutFunction')
+                renderDom(currentTime,$mod)
+            },
+            errorFunction: function(){
+                console.log('errorFunction')
+                renderDom(currentTime,$mod)
+            }
+        });
+    }
+
+    function renderDom(currentTime,$mod){
+        // $(".mod-pic").each(function(){
+            var $picContentWrap = $mod.find('.pic-content-wrap');
+            var richContent = $picContentWrap.data('richcontent');
+            var imgList = $picContentWrap.data('imglist') || [];
+            $picContentWrap.html('');
+            var newImgList = [];
+            imgList.forEach(function(item){
+                if(item.replaceOnlineTime){
+                        var preFlag = false;
+                        var nextFlag = false;
+                        if(typeof(item.replaceOnlineTime) == 'string' && item.replaceOnlineTime.indexOf('-') > -1){
+                            item.replaceOnlineTime = new Date(item.replaceOnlineTime.replace(/-/g, '/')).getTime();
+                        }
+                        preFlag = currentTime < item.replaceOnlineTime;  //当前时间小于替换图片上线时间，取原图
+                        nextFlag = currentTime  >= item.replaceOnlineTime; //当前时间大于替换图上线时间，取替换图
+                        if(preFlag || nextFlag){
+                            if(preFlag){
+                                newImgList.push(item)
+                            }else{
+                                item.linkUrl = item.replaceLinkUrl;
+                                item.picUrl = item.replacePicUrl;
+                                newImgList.push(item);
+                            }
+                        }
+                }else if(!item.replaceOnlineTime){
+                    newImgList.push(item);
+                }
+            })
+            for(var i=0; i<newImgList.length; i++){
+                var imgItem = newImgList[i];
+                var div = $(' <div class="pic-wrap"></div>');
+                var a = $('<a href="'+ imgItem.linkUrl +'" data-track="true" data-item-row="' + (i + 1) + '" data-item-colums="1" data-dtype="picture" data-acsort="01"  data-pic-url="'+ imgItem.picUrl +'" data-linkurl="'+ (imgItem.linkUrl?imgItem.linkUrl:"buke dianji") +'"></a>');
+                var img = $('<img src="'+ imgItem.picUrl +'" alt="'+ imgItem.picAlt +'" />');
+                $picContentWrap.append(
+                    '<div id="popup-content" style="visibility:hidden;height:0;">' + richContent + '</div>'
+                )
+                if(imgItem.linkUrl){
+                    if(imgItem.openInNewWindow == 'true'){
+                        a.attr({
+                            target: "_blank",
+                        })
+                    }
+                    if(imgItem.picUrl){
+                        a.append(img);
+                    }
+                    div.append(a);
+                }else if(!imgItem.linkUrl){
+                    if(imgItem.picUrl){
+                        div.append(img);
+                    }
+                }
+                $picContentWrap.append(div)
+            }
+            $picContentWrap.show();
+            // console.log('newImgList: ', newImgList)
+
+        // })
+    }   
+})(window, jQuery);
+
+if ("DESIGN" == window.shopdcmode) {
+    utils.getScript("/cdn/modules/pictures/pc/js/formcheck.js");
+}

@@ -1,0 +1,72 @@
+.mod-siqmbfprdtab .tab-box .tab-title {
+    height: 60px;
+}
+
+.mod-siqmbfprdtab .tab-box .tab-title li {
+    width: 240px;
+    height: 60px;
+    float: left;
+    text-align: center;
+    font-size: 20px;
+    line-height: 60px;
+    font-family: MicrosoftYaHei;
+    color: #333333;
+}
+
+.mod-siqmbfprdtab .tab-box .tab-title li i {
+    display: block;
+    width: 100%;
+    height: 60px;
+    font-style: normal;
+
+}
+
+.mod-siqmbfprdtab .tab-box .tab-title li.act i {
+    background-color: #A9A9F5;
+}
+.mod-siqmbfprdtab .tab-box .tab-container {
+    margin-top: 20px;
+    margin-right: -10px
+}
+
+.mod-siqmbfprdtab .my-container {
+    min-width: 1190px;
+    margin: 0 auto
+}
+
+.mod-siqmbfprdtab .my-container .part {
+    width: 1190px;
+    margin: 0 auto
+}
+
+.mod-siqmbfprdtab .goods-list .goods-item{
+    width: 290px;
+    height: 460px;
+    background: #fff;
+    text-align: center;
+    float: left;
+    margin: 0 10px 10px 0px;
+}
+
+.mod-siqmbfprdtab .goods-list .goods-item > a{display: block;height: 460px;width: 290px; position: relative; text-decoration: none; background-color: #fff;}
+.mod-siqmbfprdtab .goods-list .goods-item .pic{ width: 290px; height: 290px; background-color:#EBEEF3; }
+.mod-siqmbfprdtab .goods-list .goods-item .pic img{ width: 290px; height: 290px; }
+.mod-siqmbfprdtab .goods-list .goods-item .tip{position: absolute; right: 5px; top: 5px; width: 72px; height: 72px;}
+.mod-siqmbfprdtab .goods-list .goods-item .tip img{width: 72px; height: 72px;}
+.mod-siqmbfprdtab .goods-list .goods-item .title{font-size: 22px; height: 29px; line-height: 29px; margin: 27px 15px 0 15px; color: #000; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.mod-siqmbfprdtab .goods-list .goods-item .desc{font-size: 16px;height: 21px; line-height: 21px; margin: 6px 15px 0 15px; color: #666; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.mod-siqmbfprdtab .goods-list .goods-item .sale{position: absolute; left: 0; top:268px; background-color: #E16773;max-width: 265px; height: 22px; line-height: 22px; font-size: 14px; color: #fff;border-radius:11px 11px 11px 0; padding-left: 10px; padding-right: 15px; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.mod-siqmbfprdtab .goods-list .goods-item .price-wrp{margin-top: 21px; text-align: center;}
+.mod-siqmbfprdtab .goods-list .goods-item .price-wrp > p{border-radius: 18px; height: 36px; line-height: 36px; display: inline-block; margin-left: 10px;}
+.mod-siqmbfprdtab .goods-list .goods-item .price-wrp > p:first-child{margin-left: 0;}
+.mod-siqmbfprdtab .goods-list .goods-item .price{background-color: #222222; color: #fff; min-width: 110px; max-width: 125px; padding-left: 10px; padding-right: 10px;}
+.mod-siqmbfprdtab .goods-list .goods-item .price span{display: inline-block; overflow: hidden; vertical-align: middle; margin-left: 5px;}
+.mod-siqmbfprdtab .goods-list .goods-item .price span:first-child{margin-left: 0;}
+.mod-siqmbfprdtab .goods-list .goods-item .price-currency{font-size: 14px;}
+.mod-siqmbfprdtab .goods-list .goods-item .price-amount{font-size: 22px; font-weight: bold; max-width: 122px;overflow: hidden;white-space: nowrap;}
+.mod-siqmbfprdtab .goods-list .goods-item .price-from{font-size: 14px;}
+.mod-siqmbfprdtab .goods-list .goods-item .price.no-coupon{min-width: 130px; max-width: 350px;}
+.mod-siqmbfprdtab .goods-list .goods-item .price.no-coupon .price-amount{max-width: 200px;}
+.mod-siqmbfprdtab .goods-list .goods-item .coupon{background: url(./img/img_02.png) no-repeat; color: #E16773; width: 84px; padding-right: 46px; position: relative;}
+.mod-siqmbfprdtab .goods-list .goods-item .coupon-amount{font-size: 22px; font-weight: bold; max-width: 50px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap; vertical-align: middle;}
+.mod-siqmbfprdtab .goods-list .goods-item .coupon-text{position: absolute;right: -10px; left: -10px; top: 40px; line-height: 18px; text-align: center; ;display: block; color: #666; font-size: 12px;font-weight: bold; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}

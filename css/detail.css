@@ -1,0 +1,293 @@
+header {
+  height: 36px;
+  background-color: #2E2828;
+}
+.header ul li, .header ol li {
+  float: left;
+  color: #afafaf;
+  font-size: 12px;
+  line-height: 36px;
+  background: url('../images/Snipaste_2020-12-07_11-53-57_03.jpg') no-repeat right center;
+}
+
+.header ul li:hover {
+  color: #ffffff;
+}
+
+.header ol li:hover {
+  color: #ffffff;
+}
+
+.cateOneBox .right span:hover {
+  background-color: orange;
+}
+
+.header ul {
+  float: left;
+}
+
+.header ol {
+  float: right;
+}
+
+.header ul li {
+  margin-right: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+.header ul li:last-of-type{
+  background: none;
+}
+
+.header ol li {
+  margin-right: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+.header ol li:nth-last-of-type(2) {
+  background: none;
+  margin-right: 0;
+}
+
+.header ol li:last-of-type{
+  background: none;
+  background-color: #424242;
+  padding-left: 10px;
+}
+
+.header ol li span {
+  line-height: 1;
+  margin-right: 5px;
+}
+
+nav {
+  height: 74px;
+  box-shadow: 0 2px 10px#999;
+}
+
+.nav {
+  height: 74px;
+  padding: 18px 0 15px 0;
+  box-sizing: border-box;
+}
+
+.nav > img {
+  float: left;
+  width: 205px;
+  height: 36px;
+  margin-right: 30px;
+}
+
+.nav ul {
+  float: left;
+}
+
+.nav ul li {
+  float: left;
+  line-height: 36px;
+  margin-right: 30px;
+}
+
+.nav ul li:first-of-type:hover {
+  color: #CC141D;
+}
+
+.nav ul li:nth-of-type(2) {
+  width: 72px;
+  height: 24px;
+  color: #ffffff;
+  background-color: #FF8486;
+  text-align: center;
+  line-height: 24px;
+  border-radius: 15px;
+  margin-top: 7px;
+  font-size: 14px;
+}
+
+.nav ul li:nth-of-type(3) {
+  width: 72px;
+  height: 24px;
+  color: #ffffff;
+  background-color: #74C7FF;
+  text-align: center;
+  line-height: 24px;
+  border-radius: 15px;
+  margin-top: 7px;
+  font-size: 14px;
+}
+
+.nav ul li:nth-of-type(4):hover{
+  color: #CC141D;
+}
+
+.nav ul li:nth-of-type(5):hover{
+  color: #CC141D;
+}
+
+.nav ul li:nth-of-type(6):hover{
+  color: #CC141D;
+}
+
+img{
+  width: 100%;
+  height: 100%;
+}
+
+.nav .search {
+  float: left;
+}
+
+.search {
+  width: 300px;
+  height: 30px;
+  float: right;
+  background: #f0f0f0;
+  border: 1px solid #f0f0f0;
+  border-radius: 15px;
+  position: relative;
+}
+.search form input {
+  width: 255px;
+  height: 30px;
+  background: #f0f0f0;
+  margin-left: 10px;
+  float: left;
+  padding-left: 20px;
+  box-sizing: border-box;
+}
+.search form button {
+  width: 25px;
+  height: 30px;
+  font-size: 25px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+.search form span {
+  font-size: 12px;
+  color: #999;
+  position: absolute;
+  top: 7px;
+  left: 150px;
+}
+
+
+
+.content {
+  margin: 30px auto;
+}
+
+.goodsDetail {
+  width: 100%;
+  height: 500px;
+  display: flex;
+}
+
+.goodsDetail > .enlargeBox {
+  width: 402px;
+  height: 100%;
+  margin-right: 20px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #333;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.goodsDetail > .enlargeBox > .show {
+  width: 400px;
+  height: 400px;
+  border-bottom: 1px solid #333;
+  position: relative;
+}
+
+.goodsDetail > .enlargeBox > .show > .mask {
+  width: 200px;
+      height: 200px;
+      background-color: rgba(0, 0, 0, .5);
+      position: absolute;
+      left: 100px;
+      top: 100px;
+      pointer-events: none;
+      display: none;
+}
+
+.goodsDetail > .enlargeBox > .list {
+  flex: 1;
+  box-sizing: border-box;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+.goodsDetail > .enlargeBox > .list > p {
+  width: 80px;
+  height: 80px;
+  margin-right: 10px;
+  margin-bottom: 0;
+  border: 1px solid #333;
+  cursor: pointer;
+}
+
+.goodsDetail > .enlargeBox > .list > p.active {
+  border-color: red;
+}
+
+.goodsDetail > .enlargeBox > .enlarge {
+  width: 400px;
+  height: 400px;
+  position: absolute;
+  left: 110%;
+  top: 0;
+  /* background-image: url(./imgs/big.jpg); */
+  background-repeat: no-repeat;
+  background-size: 800px 800px;
+  background-position: 0 0;
+  border: 1px solid #000;
+
+  display: none;
+  z-index: 1000;
+}
+
+.goodsDetail > .goodsInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 30px;
+}
+
+.goodsDetail > .goodsInfo > .desc {
+  font-size: 30px;
+}
+
+.goodsDetail > .goodsInfo > .price {
+  font-size: 20px;
+}
+
+.goodsDetail > .goodsInfo > .price > span {
+  font-size: 30px;
+}
+
+.goodsDetail > .goodsInfo > .num {
+  display: flex;
+}
+
+.goodsDetail > .goodsInfo > .num > button {
+  width: 40px;
+  height: 40px;
+}
+
+.goodsDetail > .goodsInfo > .num > input {
+  height: 43px;
+  width: 75px;
+  text-align: center;
+  border: none;
+
+}
+
+.goodsNav {
+  margin-top: 30px;
+}

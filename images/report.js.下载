@@ -1,0 +1,542 @@
+/**
+ * PC端：数据上报
+ * 优化：支持?和#{"version":"1.2.20","time":"2017.12.14 10:04:26","author":"Ben"}
+ * 新增：写入cps_track_id到cookie{"version":"1.2.20","time":"2017.12.15 16:54:11","author":"Ben"}
+ * 修改：上报域名https://datacollect.vmall.com:18443/webv1改成https://metrics1.data.hicloud.com:6447/webv1{"time":"2018.08.14 17:51:56","author":"Ben"}
+ * 修改：https://metrics1.data.hicloud.com:6447/webv1改成https://metrics-drcn.dt.hicloud.com:6447/webv1{"time":"2018.08.30 11:39:27","author":"Ben"}
+ * 需求：增加数据上报到dap{"time":"2018.11.26 09:49:24","author":"Ben"}
+ */
+function isInChinase() { //国内站点
+    return window.pageConfig.locale == 'zh-CN' || window.pageConfig.locale == 'zh-CNQX';
+}
+
+function GetCookieDomain() {
+    var host = location.hostname;
+    var ip = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+    if (ip.test(host) === true || host === 'localhost') return host;
+    var regex = /([^]*).*/;
+    var match = host.match(regex);
+    if (typeof match !== "undefined" && null !== match) host = match[1];
+    if (typeof host !== "undefined" && null !== host) {
+        var strAry = host.split(".");
+        if (strAry.length > 1) {
+            host = strAry[strAry.length - 2] + "." + strAry[strAry.length - 1];
+        }
+    }
+    return '.' + host;
+}
+window.ce = {};
+ce._cache = {};
+ce.isIE6 = false;
+ce.isIE7 = false;
+
+ce.util = {
+    isFunction: function (a) {
+        return Object.prototype.toString.call(a) === "[object Function]"
+    },
+    addScriptTag: function (src, fn) {
+        if (!src) {
+            return
+        }
+        with(document) {
+            0[(getElementsByTagName("head")[0] || body)
+                .appendChild(createElement("script")).src = src]
+        }
+        if (fn && ce.util.isFunction(fn)) {
+            setTimeout(fn, 100)
+        }
+    },
+    cookie: {
+        get: function (m) {
+            var g = null;
+            if (document.cookie && document.cookie != "") {
+                var j = document.cookie.split(";");
+                for (var k = 0; k < j.length; k++) {
+                    var l = (j[k] || "").replace(
+                        /^(\s|\u00A0)+|(\s|\u00A0)+$/g, "");
+                    if (l.substring(0, m.length + 1) == (m + "=")) {
+                        var h = function (c) {
+                            c = c.replace(/\+/g, " ");
+                            var a = '()<>@,;:\\"/[]?={}';
+                            for (var b = 0; b < a.length; b++) {
+                                if (c.indexOf(a.charAt(b)) != -1) {
+                                    if (c.startWith('"')) {
+                                        c = c.substring(1)
+                                    }
+                                    if (c.endWith('"')) {
+                                        c = c.substring(0, c.length - 1)
+                                    }
+                                    break
+                                }
+                            }
+                            return decodeURIComponent(c)
+                        };
+                        g = h(l.substring(m.length + 1));
+                        break
+                    }
+                }
+            }
+            return g
+        },
+        set: function (e, g, c) {
+            c = c || {};
+            if (g === null) {
+                g = "";
+                c.expires = -1
+            }
+            var a = "";
+            if (c.expires && (typeof c.expires == "number" || c.expires.toUTCString)) {
+                var b;
+                if (typeof c.expires == "number") {
+                    b = new Date();
+                    b.setTime(b.getTime() + (c.expires * 24 * 60 * 60 * 1000))
+                } else {
+                    b = c.expires
+                }
+                a = "; expires=" + b.toUTCString()
+            }
+            var r = "; path=" + (c.path || "/");
+            var s = ".vmall.com";
+            var f = "; domain=" + s;
+            var h = c.secure ? "; secure" : "";
+            document.cookie = [e, "=", encodeURIComponent(g), a, r, f, h]
+                .join("")
+        }
+    },
+    countdown: function (q, o) {
+        var p = ce._cache[q + o.startTime],
+            m = o.now - new Date().getTime(),
+            n = 0,
+            k = function () {
+                n = Math.round((o.startTime - new Date().getTime() - m) / 1000);
+                n = n <= 0 ? 0 : n
+            },
+            r = function () {
+                k();
+                if (n <= 0) {
+                    n = 0
+                }
+                return (n <= 0) ? false : true
+            };
+        k();
+        clearInterval(p);
+        if (!r()) {
+            if (o.callback) {
+                o.callback(o)
+            }
+            return
+        }
+        p = setInterval(function () {
+            if (!r()) {
+                if (o.callback) {
+                    o.callback(o)
+                }
+                clearInterval(p)
+            }
+        }, 1000);
+        ce._cache[q + o.startTime] = p
+    },
+    hrefSetStart: function () {
+        var _el = document.getElementsByTagName("a");
+        for (var i = 0; i < _el.length; i++) {
+            var startHref = _el[i].getAttribute("startHref");
+            if (startHref != undefined && startHref != null && startHref != '') {
+                _el[i].href = startHref;
+            }
+        }
+    }
+};
+
+ce.url = {
+    // 获取主机名
+    getHost: function () {
+        return document.location.hostname;
+    },
+    // 获取当前相对路径
+    getPath: function () {
+        return document.location.pathname;
+    },
+    // 获取URL参数
+    getUrlParam: function (p) {
+        var reg = new RegExp("(^|&)" + p + "=([^&]*)(&|$)");
+        // Ben优化：兼容?和#
+        var r = (window.location.hash || window.location.search).substr(1).match(reg);
+        return r ? unescape(r[2]) : '';
+    }
+};
+
+ce.time = function (b, a) {
+    ce.util.countdown(
+        "countdown", {
+            now: b.getTime(),
+            startTime: a.getTime(),
+            callback: function (c) {
+                ce.util.hrefSetStart();
+                delete ce._cache["countdown" + a.getTime()];
+            }
+        });
+};
+
+utils.getPtid = function () {
+    var deviceid = ce.util.cookie.get("deviceid");
+    if (deviceid == null || deviceid == "" || deviceid == undefined) {
+        var s = [];
+        var h = "0123456789abcdef";
+        for (var a = 0; a < 32; a++) {
+            s[a] = h.substr(Math.floor(Math.random() * 16), 1);
+        }
+        s[14] = "4";
+        s[19] = h.substr((s[19] & 3) | 8, 1);
+        s[8] = s[13] = s[18] = s[23];
+        deviceid = s.join("");
+        ce.util.cookie.set("deviceid", deviceid, {
+            "expires": 3650,
+            "domain": "vmall.com"
+        });
+    }
+    ce.util.cookie.set("TID", deviceid, {
+        "expires": 3650,
+        "domain": "vmall.com"
+    });
+    return deviceid;
+};
+// cookie中TID为空，自动生成
+if (!ce.util.cookie.get("TID")) {
+    var newTid = utils.getPtid();
+    ce.util.cookie.set("TID", newTid, {
+        "expires": 3650,
+        "domain": "vmall.com"
+    });
+}
+
+utils.getTime = function () {
+    var e = new Date();
+    var k = e.getFullYear();
+    var b = e.getMonth() + 1;
+    b = b < 10 ? ("0" + b) : b;
+    var j = e.getDate();
+    j = j < 10 ? ("0" + j) : j;
+    var f = e.getHours();
+    f = f < 10 ? ("0" + f) : f;
+    var i = e.getMinutes();
+    var c = e.getSeconds();
+    i = i < 10 ? ("0" + i) : i;
+    c = c < 10 ? ("0" + c) : c;
+    var g = "" + k + b + j + f + i + c;
+    return g;
+};
+//获取xpath
+utils.readXPath = function (element) {
+    if (element.id !== "") { //判断id属性，如果这个元素有id，则显 示//*[@id="xPath"]  形式内容
+        return '//*[@id=\"' + element.id + '\"]';
+    }
+    //这里需要需要主要字符串转译问题，可参考js 动态生成html时字符串和变量转译（注意引号的作用）
+    if (element == document.body) { //递归到body处，结束递归
+        return '/html/' + element.tagName.toLowerCase();
+    }
+    var ix = 1, //在nodelist中的位置，且每次点击初始化
+        siblings = element.parentNode.childNodes; //同级的子元素
+
+    for (var i = 0, l = siblings.length; i < l; i++) {
+        var sibling = siblings[i];
+        //如果这个元素是siblings数组中的元素，则执行递归操作
+        if (sibling == element) {
+            return arguments.callee(element.parentNode) + '/' + element.tagName.toLowerCase() + '[' + (ix) + ']';
+            //如果不符合，判断是否是element元素，并且是否是相同元素，如果是相同的就开始累加
+        } else if (sibling.nodeType == 1 && sibling.tagName == element.tagName) {
+            ix++;
+        }
+    }
+};
+
+/****
+ * 页面id向4位或4位以上对齐
+ * numstr 需格式化的字串
+ * digit  需补齐多少位
+ */
+utils.fillzero = function (numstr, digit) {
+    if (numstr.length > digit) {
+        return numstr;
+    }
+    var prezero = "";
+    for (var i = 0; i < digit; i++) {
+        prezero += "0"
+    }
+    numstr = prezero + "" + numstr;
+    return numstr.substr(numstr.length - digit, digit);
+}
+
+window._paq = [];
+
+ce.analytics = function (c) {
+
+    // DMP
+    //var j = "https://nebula-collector.huawei.com/api/2.0/vmallcn-min.js";
+    // ce.util.addScriptTag(j);
+
+    _paq.push(["setSiteId", (ce.url.getHost() || "sale.vmall.com")]);
+
+    _paq.push(["setCustomVariable", 1, "cid", (ce.util.cookie.get("cps_id") || ""), "page"]);
+    _paq.push(["setCustomVariable", 2, "direct", (ce.util.cookie.get("cps_direct") || ""), "page"]);
+    _paq.push(["setCustomVariable", 4, "wi", (ce.util.cookie.get("cps_wi") || ""), "page"]);
+    _paq.push(['setCustomVariable', 5, "pageInstanceId", ("" || pageConfig.pageId + ""), "page"]);
+
+    var b = "https://res.vmallres.com/bi/hianalytics.js";
+    ce.util.addScriptTag(b);
+
+    // bi
+    if (c.bi) {
+        _paq.push(["setTrackerUrl", "https://metrics-drcn.dt.hicloud.com:6447/webv1"]);
+        _paq.push(["trackPageView"]);
+    }
+
+    // dap页面加载上报
+    if (c.dap) {
+        // 初始化SDK
+        var url = window.dapDomain + "/dap/report";
+        JSAnalysisSDK.setReportUrl(url);
+
+        var language = pageConfig.locale.substring(0, 2);
+        var areaCode = pageConfig.areaCode;
+        var setParams = {
+            ln: language, // 语言码（如中国：'zh'）
+            co: areaCode, // 国家码（如中国：'CN'）
+            ac: areaCode, // 区域码（如中国：'CN'）
+            actionCode: '', // 事件ID（PC：300000001；WAP：200000001）
+            uid: ce.util.cookie.get('uid') || '', // 华为帐号ID（例如：1001）
+            content: {
+                'pageInstanceId': "" || pageConfig.pageId + ""
+            }
+        };
+        if (!isInChinase()) {
+            //海外站点 需要对_accept_cookie_choose对判断 只有中间的值为1才能上报uid cid wi tid 
+            var e = utils.cookie.get("_accept_cookie_choose");
+            null != e && "" != e && null != e || (e = "0|0|0");
+            var o = e.split("|");
+            if (o[1] = "1") {
+                setParams.uid = utils.cookie.get('uid') || '';
+                setParams.tid = utils.cookie.get('TID') || utils.cookie.get('deviceid') || '';
+                setParams.cpsId = utils.cookie.get('cps_id') || '';
+                setParams.wi = utils.cookie.get('cps_wi') || '';
+            } else {
+                setParams.uid = '';
+                setParams.tid = '';
+                setParams.cpsId = '';
+                setParams.wi = '';
+            }
+
+        }
+        JSAnalysisSDK.set(setParams);
+    }
+};
+
+(function () {
+    var cid = ce.url.getUrlParam('cid');
+    var wi = ce.url.getUrlParam('wi');
+    var firstHost = GetCookieDomain();
+    var cookiereg = RegExp(/^[0-9a-zA-Z_-]{1,}$/);
+    var cookiereg2 = RegExp(/^[\w:,\d]{0,200}$/);
+    if (isInChinase()) {
+        //国内
+        if (cid && cid.match(cookiereg)) {
+            utils.cookie.set("cps_id", cid, {
+                path: "/",
+                expires: 3,
+                domain: firstHost
+            });
+        }
+
+        if (wi && wi.match(cookiereg2)) {
+            utils.cookie.set("cps_wi", wi, {
+                path: "/",
+                expires: 3,
+                domain: firstHost
+            });
+        }
+    } else {
+
+        if (cid && cid.match(cookiereg)) {
+            utils.cookie.set("cps_id", cid, {
+                path: "/",
+                expires: 30,
+                domain: firstHost
+            });
+        }
+
+        if (wi && wi.match(cookiereg2)) {
+            utils.cookie.set("cps_wi", wi, {
+                path: "/",
+                expires: 30,
+                domain: firstHost
+            });
+        }
+    }
+    // 海外暂时不上报数据
+    if (window.pageConfig.locale != 'zh-CN') {
+        return false;
+    }
+
+
+    var cps_track_id = new Date().getTime() + '_' + Math.random().toString(36).slice(2);
+
+    // 写入cps_track_id
+    ce.util.cookie.set("cps_track_id", cps_track_id, {
+        expires: 1,
+        domain: ".vmall.com"
+    });
+    // 如果是预览页面不上报
+    if(location.pathname!="/design/preview.html"){
+        // 执行上报
+        ce.analytics({
+            "bd": true,
+            "bi": true,
+            "dap": true
+        });
+    }
+    
+
+    // 数据上报
+    $('body').on('click', '[data-track]', function (event) {
+        if (!isInChinase()) {
+            return;
+        }
+        var $itemEl = $(this);
+        var itemPos = $itemEl.index() + 1;
+        // var $modEl = $(event.delegateTarget);
+        var $modEl = $itemEl.parents('.J_mod');
+        var modPos = $modEl.index() + 1 + $itemEl.parents('.J_row').index();
+        var modAnalytics = $modEl.data('analytics') || {};
+        var moduleInstanceId = $modEl.attr('instance-id');
+        var prototypeId = $modEl.attr('prototype-id');
+        var acsort = $itemEl.data('acsort') || "01";
+
+        var xPath = utils.readXPath(this);
+        var vaData = {
+            TID: utils.getPtid(),
+            TIME: utils.getTime(),
+            CONTENT: {
+                pageURL: location.href, // 当前页面链接
+                publishTime: utils.getPublishTime(), // 页面发布时间
+                Id: modAnalytics.Id, // 组件ID
+                name: modAnalytics.name, // 组件名称
+                line: modPos, // 行编号
+                xPath: xPath,
+                moduleInstanceId: "" || moduleInstanceId,
+                pageInstanceId: "" || pageConfig.pageId
+            }
+        };
+        ce.util.cookie.get('uid') == null ? vaData.UID = "" : vaData.UID = ce.util.cookie.get('uid');
+
+
+        /*************event ID begin****平台+页面ID+组件ID+上报功能点序号*** */
+        var eventID = "";
+        if (platformType == "pc") {
+            eventID += "3"
+        } else if (platformType == "wap") {
+            eventID += "2"
+        } else if (platformType == "app") {
+            eventID += "1"
+        }
+        console.log("--" + pageConfig.pageId + "--" + prototypeId + "--" + acsort);
+        //为了兼容协议弹窗的上报没有组件id
+        try {
+            eventID += "010" + utils.fillzero(prototypeId, 3) + acsort;
+        } catch (error) {
+
+        }
+        console.log("eventID = " + eventID);
+        /*************event ID end******* */
+
+        /************集中处理上报公共部分begin  */
+        vaData.CONTENT.top = $(this).offset().top;
+        vaData.CONTENT.left = $(this).offset().left;
+        $.extend(true, vaData.CONTENT, $itemEl.data());
+        delete vaData.CONTENT.track;
+        delete vaData.CONTENT.acsort;
+        /************集中处理上报公共部分end  */
+
+        /************处理特殊字段场景 保持数据中心字段一致 begin  */
+        if ($itemEl.data("skucode")) {
+            vaData.CONTENT.SKUCode = $itemEl.data("skucode");
+            delete vaData.CONTENT.skucode;
+        }
+        if ($itemEl.data("dtype")) {
+            vaData.CONTENT.type = $itemEl.data("dtype");
+            delete vaData.CONTENT.dtype;
+        }
+
+        if ($itemEl.data("linkurl")) {
+            vaData.CONTENT.linkURL = $itemEl.data("linkurl");
+            delete vaData.CONTENT.linkurl;
+        }
+
+        //新增协议弹窗需要处理上报字段eventid
+        if ($itemEl.data('eventid')) {
+            eventID = $itemEl.data('eventid');
+            delete vaData.CONTENT.eventid;
+        }
+
+        console.log("isnotBubble = " + $itemEl.data("isnotbubble"))
+        if ("1" == $itemEl.data("isnotbubble")) {
+            event.stopPropagation();
+            delete vaData.CONTENT.isnotbubble;
+        }
+
+        var itemPos = $itemEl.data("itemPos");
+        var itemCount = $itemEl.data("itemCount");
+        if (itemCount && itemCount) {
+            vaData.CONTENT.row = Math.ceil(itemPos / itemCount); // 商品在组件中的行
+            vaData.CONTENT.column = itemPos % itemCount || itemCount; // 商品在组件中的列
+            delete vaData.CONTENT.itemPos;
+            delete vaData.CONTENT.itemCount;
+        }
+
+        var itemRow = $itemEl.data("itemRow"); // 目前用于图模块热区，轮播图，帮助中心
+        var itemColums = $itemEl.data("itemColums"); // 目前用于图模块热区，轮播图，帮助中心
+        if(itemColums) { // 目前用于图模块热区，轮播图，帮助中心
+            if(itemRow==undefined){
+                vaData.CONTENT.row =  1;
+                vaData.CONTENT.column = itemColums;
+                delete vaData.CONTENT.itemColums;
+                delete vaData.CONTENT.itemRow;
+            }else{
+                vaData.CONTENT.row = itemRow;
+                vaData.CONTENT.column = itemColums;
+                delete vaData.CONTENT.itemRow;
+                delete vaData.CONTENT.itemColums;
+            }
+        }
+        /************处理特殊字段场景 保持数据中心字段一致 end  */
+        vaData.CONTENT.click = 1;
+        console.log(vaData.CONTENT);
+        // 国内上报到bi
+        if (isInChinase()) {
+            _paq.push(["setTrackerUrl", "https://metrics-drcn.dt.hicloud.com:6447/webv1"]);
+            _paq.push(['trackLink', eventID, 'link', vaData]);
+        }
+
+        // 事件上报dap
+        var params = {
+            actionCode: eventID, // 事件ID
+            time: utils.getTime(),
+            content: vaData.CONTENT // 事件内容，扩展字段（例如："content": {"bb": "1111","cc":"2221","dd":"3331"}）
+        };
+        if (!isInChinase()) {
+            //海外站点 需要对_accept_cookie_choose对判断 只有中间的值为1才能上报uid cid wi tid 
+            var e = utils.cookie.get("_accept_cookie_choose");
+            null != e && "" != e && null != e || (e = "0|0|0");
+            var o = e.split("|");
+            if (o[1] != "1") {
+                //值不为1直接传空值
+                params.tid = '';
+                params.uid = '';
+                params.cpsId = '';
+                params.wi = '';
+            }
+        }
+        console.log(params);
+        // JSAnalysisSDK.track(params);
+        JSAnalysisSDK.set(params);
+        JSAnalysisSDK.report();
+    });
+})();

@@ -1,0 +1,41 @@
+/*
+{"name":"品质型商品列表",time":"2019.04.22 10:01:41","author":"Zhen"}
+*/
+.mod-productQuality .layout{width: 1190px; margin: 0 auto;}
+.mod-productQuality .grid-list{margin-right: -10px;}
+.mod-productQuality .grid-items{width: 390px; height: 560px; margin-left: 0; margin-right: 10px; margin-bottom: 10px;float: left;}
+.mod-productQuality .grid-items > a{display: block;height: 560px; position: relative; text-decoration: none; background-color: #fff;}
+.mod-productQuality .grid-items .pic{ width: 390px; height: 390px; background-color:#EBEEF3; }
+.mod-productQuality .grid-items .pic img{ width: 390px; height: 390px; }
+.mod-productQuality .grid-items .tip{position: absolute; right: 5px; top: 5px; width: 72px; height: 72px;}
+.mod-productQuality .grid-items .tip img{width: 72px; height: 72px;}
+.mod-productQuality .grid-items .title{font-size: 22px; height: 30px; line-height: 30px; margin: 24px 15px 0 15px; color: #000; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.mod-productQuality .grid-items .desc{font-size: 16px;height: 22px; line-height: 22px; margin: 5px 15px 0 15px; color: #666; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.mod-productQuality .grid-items .sale{position: absolute; left: 0; top:362px; background-color: #E16773;max-width: 365px; height: 28px; line-height: 28px; font-size: 16px; color: #fff;border-radius:14px 14px 14px 0; padding-left: 10px; padding-right: 15px; text-align: center;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+.mod-productQuality .grid-items .price-wrp{margin-top: 20px; text-align: center;}
+.mod-productQuality .grid-items .price-wrp > p{border-radius: 18px; height: 36px; line-height: 36px; display: inline-block; margin-left: 10px;}
+.mod-productQuality .grid-items .price-wrp > p:first-child{margin-left: 0;}
+.mod-productQuality .grid-items .price{background-color: #222222; color: #fff; min-width: 110px; max-width: 225px; padding-left: 10px; padding-right: 10px;}
+.mod-productQuality .grid-items .price span{display: inline-block; overflow: hidden; vertical-align: middle; margin-left: 5px;}
+.mod-productQuality .grid-items .price span:first-child{margin-left: 0;}
+.mod-productQuality .grid-items .price-currency{font-size: 14px;}
+.mod-productQuality .grid-items .price-amount{font-size: 22px; font-weight: bold; max-width: 122px;overflow: hidden;white-space: nowrap;}
+.mod-productQuality .grid-items .price-from{font-size: 14px;}
+.mod-productQuality .grid-items .price.no-coupon{min-width: 130px; max-width: 350px;}
+.mod-productQuality .grid-items .price.no-coupon .price-amount{max-width: 200px;}
+.mod-productQuality .grid-items .coupon{background: url(./images/product-quality_pc_img_02.png) no-repeat; color: #E16773; width: 84px; padding-right: 46px; position: relative;}
+.mod-productQuality .grid-items .coupon-amount{font-size: 22px; font-weight: bold; max-width: 50px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap; vertical-align: middle;}
+.mod-productQuality .grid-items .coupon-text{position: absolute;right: 0;min-width: 130px; max-width: 270px; top: 40px; line-height: 18px; text-align: center; ;display: block; color: #666; font-size: 12px;font-weight: bold; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+/*一行两个*/
+.mod-productQuality .grid-items.style-2{width: 590px; height: 460px}
+.mod-productQuality .grid-items.style-2 > a{display: block; height: 460px;}
+.mod-productQuality .grid-items.style-2 .pic{ width: 590px; height: 290px;}
+.mod-productQuality .grid-items.style-2 .pic img{ width: 590px; height: 290px;}
+.mod-productQuality .grid-items.style-2 .sale{top:262px;max-width: 565px;}
+/*一行四个*/
+.mod-productQuality .grid-items.style-4{width: 290px; height: 460px}
+.mod-productQuality .grid-items.style-4 > a{display: block; height: 460px;}
+.mod-productQuality .grid-items.style-4 .pic{ width: 290px; height: 290px;}
+.mod-productQuality .grid-items.style-4 .pic img{ width: 290px; height: 290px;}
+.mod-productQuality .grid-items.style-4 .price{max-width: 125px}
+.mod-productQuality .grid-items.style-4 .sale{top:262px;max-width: 265px;}

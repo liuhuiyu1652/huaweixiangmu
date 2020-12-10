@@ -1,0 +1,285 @@
+/**
+ * MB轮播组件
+ * Kunyi@10:37 2017.08.24
+ * 转测
+ * 优化:轮播图组件与app端的二级导航发生冲突,调用客户端接口解决冲突{"time":"2019.02.19","author":"deng"}
+ * 
+ */
+
+(function (window, $, undefined) {
+    var _swiper = {
+        init: function (obj) {
+            var container = $(obj);
+            var that = this;
+            var currentTime  = utils.getCurrZoneDate();
+            $(obj).find('.swiper-wrapper').each(function(){
+                // var container = $('.mod-floatslider').find('.swiper-container');
+                var picList = $(this).data('piclist') || [];
+                var them = this;
+                var flag = true;
+                picList.forEach(function (item, index) {
+                    if (item.replaceOnlineTime) {
+                        flag = false;
+                    }
+                })
+                if (flag == false) {
+                    utils.ajaxOpenAPI({
+                        type: 'GET',
+                        url: "/serverTime.json",
+                        contentType: "application/json;charset=utf-8",
+                        success: function (data) {
+                            if (data && data.success && data.serverTime) {
+                                currentTime = data.serverTime * 1000;
+                                renderDom(currentTime, $(them));
+                            } else {
+                                renderDom(currentTime, $(them));
+                            }
+                            // container.each(function () {
+                                // that.create(this);
+                            // });
+                            that.create($(them).parent().get(0));
+                        },
+                        timeoutFunction: function () {
+                            renderDom(currentTime, $(them));
+                            // container.each(function () {
+                            //     that.create(this);
+                            // });
+                            that.create($(them).parent().get(0));
+
+                        },
+                        errorFunction: function () {
+                            renderDom(currentTime, $(them));
+                            // container.each(function () {
+                            //     that.create(this);
+                            // });
+                            that.create($(them).parent().get(0));
+
+                        }
+                    });
+                } else {
+                    renderDom(currentTime, $(them));
+                    // container.each(function () {
+                    //     that.create(this);
+                    // });
+                    that.create($(them).parent().get(0));
+                }
+            })
+            // container.each(function () {
+            //     that.create(this);
+            // });
+        },
+        create: function (obj) {
+            var lis = $(obj).find('li');
+            var aniwidth = $(obj).data('aniwidth') || 1000;
+            lis.addClass('swiper-slide');
+            if (lis.length > 1) {
+                var mySwiper = new Swiper(obj, {
+                    pagination: $(obj).find('.swiper-pagination'),
+                    paginationClickable: true,
+                    centeredSlides: true,
+                    autoplay: 4000,
+                    speed: 500,
+                    loop: true,
+                    autoplayDisableOnInteraction: false,
+                    onInit: function (swiper) {
+                        var eleani = swiper.slides.eq(swiper.activeIndex).find('.ani')[0] || "";
+                        if (eleani) {
+                            $(eleani).css('left', aniwidth + "px").css("display", "none");
+                            var timeout1 = setTimeout(function () {
+                                $(eleani).stop().animate({
+                                    left: 0
+                                }, 500).css("display", "block");
+                            }, 200);
+                        }
+                        var elevideo = swiper.slides.eq(swiper.activeIndex).find('video')[0] || "";
+                        if (elevideo) {
+                            try {
+                                elevideo.currentTime = 0;
+                                elevideo.play();
+                            } catch (error) {
+
+                            }
+
+                        }
+                    },
+                    onSlideNextStart: function (swiper) {
+                        var eleani = swiper.slides.eq(swiper.activeIndex).find('.ani')[0] || "";
+                        if (eleani) {
+                            $(eleani).css('left', aniwidth + "px").css("display", "none");
+                            var timeout2 = setTimeout(function () {
+                                $(eleani).stop().animate({
+                                    left: 0
+                                }, 500).css("display", "block");
+                            }, 200);
+                        }
+                        var elevideo = swiper.slides.eq(swiper.activeIndex).find('video')[0] || "";
+                        if (elevideo) {
+                            try {
+                                elevideo.currentTime = 0;
+                                elevideo.play();
+                            } catch (error) {
+
+                            }
+                        }
+                    },
+                    onSlidePrevStart: function (swiper) {
+                        var eleani = swiper.slides.eq(swiper.activeIndex).find('.ani')[0] || "";
+                        if (eleani) {
+                            $(eleani).css('left', -aniwidth + "px").css("display", "none");
+                            var timeout3 = setTimeout(function () {
+                                $(eleani).stop().animate({
+                                    left: 0
+                                }, 500).css("display", "block");
+                            }, 200);
+                        }
+                        var elevideo = swiper.slides.eq(swiper.activeIndex).find('video')[0] || "";
+                        if (elevideo) {
+                            try {
+                                elevideo.currentTime = 0;
+                                elevideo.play();
+                            } catch (error) {
+
+                            }
+                        }
+                    }
+
+                });
+
+                $('.mod-floatslider').on('mouseover', ".swiper-pagination-bullet", function () {
+                    $(this).click(); //鼠标划上去之后，自动触发点击事件来模仿鼠标划上去的事件
+                })
+
+                //鼠标覆盖停止自动切换
+                mySwiper.container[0].onmouseover = function () {
+                    mySwiper.stopAutoplay();
+                }
+                // //鼠标离开开始自动切换
+                mySwiper.container[0].onmouseout = function () {
+                    mySwiper.startAutoplay();
+
+                }
+            } else {
+                new Swiper(obj, {
+                    centeredSlides: true
+                });
+            }
+        }
+    };
+    DC.defineModule('Slider picture', {
+        init: function (dom) {
+            var container = $(dom).find('.swiper-container');
+            //装修页面拖动组件和编辑表单时，获取元素异常，做个规避。
+            if("DESIGN" == window.shopdcmode){
+                container = $('.mod-floatslider').find('.swiper-container');
+            }
+            isImgLoad(function (naturalHeight,data) {
+                $(data).find('.swiper-wrapper').show();
+                _swiper.init(data);
+            },  container);
+        }
+    });
+
+    (function execFn() {
+        if (window.Swiper) {
+            isImgLoad(function (naturalHeight,data) {
+                $(data).find('.swiper-wrapper').show();
+                _swiper.init(data);
+            }, ".mod-floatslider .floatslider-swiper")
+
+        } else {
+            setTimeout(function () {
+                execFn();
+            }, 0);
+        }
+    })();
+    //根据条件重新渲染DOM
+    function renderDom(currentTime,$picContentWrap){
+        // $('.mod-floatslider').each(function(){
+            // var $picContentWrap = $(this).find($(".swiper-wrapper"));
+            $picContentWrap.html('');
+            var picList = $picContentWrap.data('piclist') || [];
+            // console.log('currentTime: ' + new Date(currentTime).toLocaleString()); 
+            var newImgList = [];
+            picList.forEach(function(item){       
+                if(item.replaceOnlineTime){
+                    var preFlag = false;
+                    var nextFlag = false;
+                    if(typeof(item.replaceOnlineTime) == 'string' && item.replaceOnlineTime.indexOf('-') > -1){
+                        item.replaceOnlineTime = new Date(item.replaceOnlineTime.replace(/-/g, '/')).getTime();
+                    }
+                    preFlag = currentTime < item.replaceOnlineTime;  //当前时间小于替换图片上线时间，取原图
+                    nextFlag = currentTime  >= item.replaceOnlineTime; //当前时间大于替换图上线时间，取替换图
+                    if(preFlag || nextFlag){
+                        if(preFlag){
+                            newImgList.push(item)
+                        }else{
+                            item.linkUrl = item.replaceLinkUrl;
+                            item.picUrl = item.replacePicUrl;
+                            item.foregroundUrl = item.replaceForegroundUrl;
+                            item.picAlt = item.replacePicAlt;
+                            item.videoUrl = item.replaceVideoUrl;
+                            newImgList.push(item);
+                        }
+                    }
+                }else if(!item.replaceOnlineTime){
+                    newImgList.push(item);
+                }
+            })
+            for(var i=0; i<newImgList.length; i++){
+                var imgItem = newImgList[i];
+                var li = $('<li style="width:100%;"></li>');
+                var a = $('<a  class="ec-slider-item" data-track="true"  data-item-colums="' + (i + 1) + '" data-dtype="picture" data-acsort="01" pic-url="'+ imgItem.picUrl +'" data-linkUrl="'+ (imgItem.linkUrl?imgItem.linkUrl:"buke dianji") +'"></a>');
+                var backgroundPic = $('<img class="backgroundPic"  src="'+ imgItem.picUrl +'" alt="'+ imgItem.picAlt +'"/>');
+                var foregroundPic = $('<img   class="ani foregroundPic" swiper-animate-effect="slideInLeft" swiper-animate-duration="0.5s" swiper-animate-delay="0.2s" src="'+ imgItem.foregroundUrl +'" alt="'+ imgItem.picAlt +'"  style="display:none;"/>');
+                var video = $('<div class="webvideo-boxs"><video style="display:block;" width=100% height=100% poster="'+ imgItem.foregroundUrl +'" autoplay  muted><source src="'+ imgItem.videoUrl +'" type="video/mp4"></video></div>');
+                if(imgItem.linkUrl){
+                    a.attr('href', imgItem.linkUrl);
+                    if(imgItem.configOn == "true"){
+                        a.prop("target", "_blank");
+                    }
+                }else{
+                    a.attr('href', 'javascript:;');
+                    a.css('cursor', 'default');
+                }
+                a.append(backgroundPic);
+                if(imgItem.foregroundUrl){
+                    a.append(foregroundPic);
+                }else{
+                    video.find('video').prop('poster', imgItem.picUrl);
+                }
+                if(imgItem.videoUrl){
+                    a.append(video);
+                }
+                li.append(a)
+                $picContentWrap.append(li);
+            }
+        // })
+    }   
+
+    // 判断图片加载的函数
+    function isImgLoad(callback, data) {
+        var t_img; // 定时器
+        var isLoad = true; // 控制变量
+        var naturalHeight = $(data).find(".backgroundPic")[0].height;
+        // 如果为0就将isLoad设为false
+        if (naturalHeight === 0) {
+            isLoad = false;
+        };
+        // 为true，没有发现为0的。加载完毕
+        if (isLoad) {
+            clearTimeout(t_img); // 清除定时器
+            callback(naturalHeight,data);
+            // 为false，将调用定时器递归
+        } else {
+            isLoad = true;
+            t_img = setTimeout(function () {
+                isImgLoad(callback, data); // 递归扫描
+            }, 50);
+        }
+    }
+
+})(window, jQuery);
+
+if ("DESIGN" == window.shopdcmode) {
+    utils.getScript("/cdn/modules/slider-scroll/pc/js/formcheck.js");
+}
